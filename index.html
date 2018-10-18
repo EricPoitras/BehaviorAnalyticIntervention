@@ -141,7 +141,7 @@
                     <input type="checkbox" class="form-check-input" id="exampleCheck2">
                     <label class="form-check-label" for="exampleCheck2">BCT Score</label>
                   </div>
-                  <button type="button" class="btn btn-primary">Submit</button>
+                  <button id="graphbtn" type="button" class="btn btn-primary">Submit</button>
                 </form>
             </div>
             
@@ -174,7 +174,7 @@
                     </tr>
                   </tbody>
                 </table>
-                <button type="button" class="btn btn-primary w-100 mt-3 mb-3">Submit</button>
+                <button id="databtn" type="button" class="btn btn-primary w-100 mt-3 mb-3">Submit</button>
             </div>
           </div>
           <div id="login" class="row align-items-center justify-content-center">
@@ -252,14 +252,14 @@ function drawBackgroundColor() {
               $("#graph").css("display","flex");
               $("#login").css("display","none");
           });
-          $("#dataview").click(function(){
+          $("#dataview, #graphbtn").click(function(){
               console.log("Router to Data View...");
               $("#data").css("display","flex");
               $("#result").css("display","none");
               $("#graph").css("display","none");
               $("#login").css("display","none");
           });
-          $("#resultview").click(function(){
+          $("#resultview, #databtn").click(function(){
               console.log("Router to Result View...");
               $("#data").css("display","none");
               $("#result").css("display","flex");
