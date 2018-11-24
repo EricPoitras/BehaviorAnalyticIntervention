@@ -33,6 +33,12 @@
       tr th{
           font-weight: normal;
       }
+      #AboutNotes{
+            height: 200px;
+      }
+      i.fa-question-circle{
+            color: #007bff;
+      }
       
     </style>
       
@@ -58,7 +64,7 @@
           </li>
         </ul>
         <span class="navbar-text">
-           <p class="d-inline m-2">I &#x2764; Data</p> <i class="fas fa-2x fa-user-astronaut"></i> 
+           <p class="d-inline m-2"><span id="usernamelabel">I &#x2764; Data</span></p> <i class="fas fa-2x fa-user-astronaut"></i> 
         </span>
       </div>
     </nav>
@@ -74,13 +80,12 @@
                     Metrics
                   </div>
                   <ul class="list-group list-group-flush">
-                    <li class="list-group-item">TAU-U = 1.00</li>
-                    <li class="list-group-item">BCT = 0.816</li>
+                    <li class="list-group-item">TAU-U = 1.00 <span class="float-right"><i class="fas fa-question-circle" ></i></span></li>
+                    <li class="list-group-item">BCT = 0.816 <span class="float-right"><i class="fas fa-question-circle" ></i></span></li>
                     
                   </ul>
                   <div class="card-body">
-                    <a href="#" class="card-link">Learn More</a>
-                      <a href="#" class="card-link">Download</a>
+                      <a href="#" class="card-link" data-toggle="modal" data-target="#PicModal">Download</a>
                   </div>
                 </div>
             </div>
@@ -114,26 +119,26 @@
                   <div class="form-row mt-3">
                     <div class="col">
                     <label for="formGroupExampleInput">Title</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="e.g., The relationship between observations and phase across days">
+                    <input type="text" class="form-control" id="titlelabel" placeholder="e.g., The relationship between observations and phase across days">
                     <small id="emailHelp" class="form-text text-muted">The description of the graph added to the top.</small>
                   </div>
                   <div class="col">
                     <label for="formGroupExampleInput">Vertical Axis Label</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="e.g., Observations">
+                    <input type="text" class="form-control" id="yaxislabel" placeholder="e.g., Observations">
                     <small id="emailHelp" class="form-text text-muted">The label assigned to the y or vertical axis.</small>
                   </div>
                   <div class="col">
                     <label for="formGroupExampleInput">Horizontal Axis Label</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="e.g., Days">
+                    <input type="text" class="form-control" id="xaxislabel" placeholder="e.g., Days">
                     <small id="emailHelp" class="form-text text-muted">The label assigned to the x or horizontal axis.</small>
                   </div>
                   </div>
                   <div class="form-row mt-3">
                     <div class="col">
                       <label class="mt-2" for="formGroupExampleInput">Phase A Label</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="e.g., Phase A">
+                    <input type="text" class="form-control" id="phasealabel" placeholder="e.g., Phase A">
                         <label class="mt-2" for="formGroupExampleInput">Phase B Label</label>
-                    <input type="text" class="form-control" id="formGroupExampleInput" placeholder="e.g., Phase B">
+                    <input type="text" class="form-control" id="phaseblabel" placeholder="e.g., Phase B">
                         <button type="button" class="btn btn-outline-primary w-100 mt-3 mb-3">Add Phase</button>
                     </div>
                   </div>
@@ -186,11 +191,11 @@
                 <form class="card-body">
                   <div class="form-group">
                     <label for="exampleInputEmail1">Username</label>
-                    <input type="text" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter username">
+                    <input type="text" class="form-control" id="username" aria-describedby="emailHelp" placeholder="Enter username">
                     <small id="emailHelp" class="form-text text-muted">Your username is displayed for the duration of this session</small>
                   </div>
                   <div class="form-group form-check">
-                    <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                    <input type="checkbox" class="form-check-input" id="localusernamesave">
                     <label class="form-check-label" for="exampleCheck1">Remember me</label>
                   </div>
                   <button id="loginbtn" type="button" class="btn btn-primary">Start</button>
@@ -199,6 +204,28 @@
             </div>
           </div>
         </div>
+      
+    <!-- Modal -->
+    <div class="modal fade" id="PicModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Download Chart</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+                <div id='chart_div2'></div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <a id="saveimgbtn"  href="" role="button" class="btn btn-primary" download="graph.png">Save</a>
+          </div>
+        </div>
+      </div>
+    </div>
+      
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -212,31 +239,81 @@
     <script>
         
         // Variables
+        var valuearray1 = [];
+        var valuearray2 = [];
+        var datearray = [];
+        var idarray = [];
+        
+        var phasealabelvalue;
+        var phaseblabelvalue;
+        var x_axis_labelvalue;
+        var y_axis_labelvalue;
+        var title_labelvalue;
         
         // Row index for data table
         var rowindex=2;
         
         google.charts.load('current', {packages: ['corechart', 'line']});
         google.charts.setOnLoadCallback(drawBackgroundColor);
-
+        
         function drawBackgroundColor() {
-          var data = new google.visualization.DataTable();
-          data.addColumn('date', 'Day');
-          data.addColumn('number', 'Phase A');
-          data.addColumn('number', 'Phase B');
+          //console.log(valuearray1);
+          //console.log(valuearray2);
+          //console.log(datearray[0].split("-")[0]);
+          // console.log(datearray[0].split("-")[1]);
+          // console.log(datearray[0].split("-")[2]);
+          //console.log(idarray);
+          console.log(idarray.length);
+            
+          var gdatatable = new google.visualization.DataTable();
+          gdatatable.addColumn('date', x_axis_labelvalue);
+          gdatatable.addColumn('number', phasealabelvalue);
+          gdatatable.addColumn('number', phaseblabelvalue);
+          
+          // Variables
+          var year;
+          var month;
+          var day;
+          var value1;
+          var value2;
+            
+          for (var i = 0; i < idarray.length; i++) {
+            // Parse Values
+            year = datearray[i].split("-")[0];
+            month = datearray[i].split("-")[1]-1;
+            day = datearray[i].split("-")[2];
+            if(valuearray1[i] == "" || valuearray1[i] == null || valuearray1[i] == "N/A"){
+              value1 = null;
+            }else{
+              value1 = Number(valuearray1[i]);
+            }
+            if(valuearray2[i] == "" || valuearray2[i] == null || valuearray2[i] == "N/A"){
+              value2 = null;
+            }else{
+              value2 = Number(valuearray2[i]);
+            }
+            
+            // Log Results
+            console.log("Data entries: "+year+" "+month+" "+day+" "+value1+" "+value2);
+            
+            gdatatable.addRows([
+              [new Date(year, month, day),value1,value2]
+            ]);
+          }       
 
-          data.addRows([
+         /*gdatatable.addRows([
             [new Date(2013, 0, 1), 2, null],  [new Date(2013, 0, 2), 2, null],  [new Date(2013, 0, 3), 2, null],  [new Date(2013, 0, 4), 5, null],  [new Date(2013, 0, 5), 7, null], [new Date(2013, 0, 6), null, null],
             [new Date(2013, 0, 7), null, 9],  [new Date(2013, 0, 8), null, 10]
-          ]);
+          ]);*/
 
           var options = {
             hAxis: {
-              title: 'Day'
+              title: x_axis_labelvalue
             },
             vAxis: {
-              title: 'Data'
+              title: y_axis_labelvalue
             },
+              title: title_labelvalue,
               width: 700,
               height: 600,
               pointSize: 5,
@@ -245,7 +322,14 @@
           };
 
           var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
-          chart.draw(data, options);
+          chart.draw(gdatatable, options);
+            
+          var chart_div2 = document.getElementById('chart_div2');
+          var chartdownloadbtn = document.getElementById('saveimgbtn');
+            
+          chart_div2.innerHTML = '<img src="' + chart.getImageURI() + '">';
+          chartdownloadbtn.setAttribute("href",chart.getImageURI());
+          console.log(chart_div2.innerHTML);
         }  
         
         // Controllers
@@ -272,10 +356,7 @@
         // Save data in table
         function SaveDataTable(){
             console.log("save data table...");
-            var valuearray1 = [];
-            var valuearray2 = [];
-            var datearray = [];
-            var idarray = [];
+            
             var table = document.getElementById("datatable");
             
             for (var i=1; i<table.rows.length-1; i++){
@@ -285,10 +366,43 @@
                datearray.push(table.rows[i].cells[1].children[0].value);
                idarray.push(table.rows[i].cells[0].innerHTML);
             }
-            console.log(valuearray1);
-            console.log(valuearray2);
-            console.log(datearray);
-            console.log(idarray);
+            
+            drawBackgroundColor();
+        
+        }
+        
+        // Define graph and set labels
+        function DefineGraph(){
+            // Graph Title Label
+            title_labelvalue = document.getElementById("titlelabel").value;
+            
+            // Axis Labels
+            x_axis_labelvalue = document.getElementById("xaxislabel").value;
+            y_axis_labelvalue = document.getElementById("yaxislabel").value;
+            
+            // Phase labels
+            phasealabelvalue = document.getElementById("phasealabel").value;
+            console.log(document.getElementById("phasealabel").value);
+            phaseblabelvalue = document.getElementById("phaseblabel").value;
+            console.log(document.getElementById("phaseblabel").value);
+        }
+        
+        function SaveUsername(){
+            if(document.getElementById("localusernamesave").checked){
+                localStorage.setItem("graphappusernamelabel", document.getElementById("username").value);
+                document.getElementById("usernamelabel").textContent = localStorage.getItem("graphappusernamelabel");
+            }else{
+                sessionStorage.setItem("graphappusernamelabel", document.getElementById("username").value);
+                document.getElementById("usernamelabel").textContent = sessionStorage.getItem("graphappusernamelabel");
+            }
+        }
+        
+        function GetUsername(){
+            if(localStorage.getItem("graphappusernamelabel")!=null){
+                document.getElementById("username").value = localStorage.getItem("graphappusernamelabel");
+            }else{
+                
+            }
         }
     
           $(document).ready(function(){
@@ -320,12 +434,18 @@
                   drawBackgroundColor();
               });
               
+              GetUsername();
+              
               // Event Listener Static Elements
               
               // Add data table row click event
               document.getElementById("adddatarow").addEventListener("click", AddDataRow);
               // Save data from data table submit button event
               document.getElementById("databtn").addEventListener("click", SaveDataTable);
+              // Add labels and define graph type
+              document.getElementById("graphbtn").addEventListener("click", DefineGraph);
+              // Save image button click event
+              document.getElementById("loginbtn").addEventListener("click", SaveUsername);
               
               // Event Listener Dynamically Created Elements
               
