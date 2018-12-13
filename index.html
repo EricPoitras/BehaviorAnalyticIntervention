@@ -14,11 +14,11 @@
 
     <style>
       .row{
-          height: 90vh;
+          /*height: 90vh;*/
+          padding-top: 50px;
+          padding-bottom: 50px;
       }
-      #chart_div{
-          height: 100%;
-      }
+      
       input.inputcus {
             padding: 5px;
         -webkit-appearance: none; 
@@ -70,24 +70,52 @@
     </nav>
       
       <div class="container">
-          <div id="result" class="row align-items-center">
-            <div class="col">
-              <div id="chart_div"></div>
-            </div>
-            <div class="col-3">
-                <div class="card" style="width: 18rem;">
+          <div id="result" class="row justify-content-center">
+            <div class="col-10">
+              <div id="chart_div" class="m-auto"></div>
+              <div class="card m-auto mt-3" style="width: 80%">
                   <div class="card-header">
-                    Metrics
+                    Report Builder
                   </div>
                   <ul class="list-group list-group-flush">
                     <li class="list-group-item">TAU-U = 1.00 <span class="float-right"><i class="fas fa-question-circle" ></i></span></li>
                     <li class="list-group-item">BCT = 0.816 <span class="float-right"><i class="fas fa-question-circle" ></i></span></li>
-                    
                   </ul>
                   <div class="card-body">
-                      <a href="#" class="card-link" data-toggle="modal" data-target="#PicModal">Download</a>
+                    <form>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect2">TAU-U</label>
+                            <div>The TAU-U score is statistically <select style="width: 175px" class="form-control d-inline" id="exampleFormControlSelect2">
+                              <option>significant.</option>
+                              <option>not significant.</option>
+                            </select></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect2">BCT</label>
+                            <div>The BCT score is statistically <select style="width: 175px" class="form-control d-inline" id="exampleFormControlSelect2">
+                              <option>significant.</option>
+                              <option>not significant.</option>
+                            </select></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlSelect2">Interpretation</label>
+                            <div>Phase A is <select style="width: 175px" class="form-control d-inline" id="exampleFormControlSelect2">
+                              <option>greater than</option>
+                              <option>lesser than</option>
+                              <option>equal to</option>
+                            </select> Phase B.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="ReportArea">Report Overview</label>
+                            <textarea class="form-control" id="ReportArea" rows="4" disabled></textarea>
+                        </div>
+                    </form>
                   </div>
-                </div>
+                  <div class="card-body">
+                      <a href="#" class="card-link" data-toggle="modal" data-target="#PicModal">Download Graph</a>
+                      <a href="#" class="card-link">Copy Text to Clipboard</a>
+                  </div>
+              </div>
             </div>
           </div>
           <div id="graph" class="row align-items-center">
@@ -135,6 +163,20 @@
                   </div>
                   <div class="form-row mt-3">
                     <div class="col">
+                        <label class="mt-2" for="formGroupExampleInput">Observations</label>
+                        <input type="text" class="form-control" id="observationcount" placeholder="e.g., 10">
+                    </div>
+                    <div class="col">
+                      <label class="mt-2" for="formGroupExampleInput">Height</label>
+                      <input type="text" class="form-control" id="chartareaheight" placeholder="e.g., in pixels - default is 400">
+                    </div>
+                    <div class="col">
+                      <label class="mt-2" for="formGroupExampleInput">Width</label>
+                      <input type="text" class="form-control" id="chartareawidth" placeholder="" disabled>
+                    </div>
+                  </div>
+                  <div class="form-row mt-3">
+                    <div class="col">
                       <label class="mt-2" for="formGroupExampleInput">Phase A Label</label>
                     <input type="text" class="form-control" id="phasealabel" placeholder="e.g., Phase A">
                         <label class="mt-2" for="formGroupExampleInput">Phase B Label</label>
@@ -142,6 +184,7 @@
                         <button type="button" class="btn btn-outline-primary w-100 mt-3 mb-3">Add Phase</button>
                     </div>
                   </div>
+                  
                   <div class="form-group form-check">
                     <input type="checkbox" class="form-check-input" id="exampleCheck1">
                     <label class="form-check-label" for="exampleCheck1">TAU-U Score</label>
@@ -185,7 +228,7 @@
                 <button id="databtn" type="button" class="btn btn-primary w-100 mt-3 mb-3">Submit</button>
             </div>
           </div>
-          <div id="login" class="row align-items-center justify-content-center">
+          <div id="login" style="height: 80vh;" class="row align-items-center justify-content-center">
             <div class="col-5">
               <div class="card">
                 <form class="card-body">
@@ -249,6 +292,10 @@
         var x_axis_labelvalue;
         var y_axis_labelvalue;
         var title_labelvalue;
+        
+        var graph_height;
+        var graph_width;
+        var graph_observations;
         
         // Row index for data table
         var rowindex=2;
@@ -314,11 +361,14 @@
               title: y_axis_labelvalue
             },
               title: title_labelvalue,
-              width: 700,
-              height: 600,
+              width: graph_width,
+              height: graph_height,
               pointSize: 5,
-
-              colors:['blue', 'red']
+              colors:['blue', 'red'],
+              chartArea: {
+                  width: '60%',
+                  height: '60%'
+              }              
           };
 
           var chart = new google.visualization.LineChart(document.getElementById('chart_div'));
@@ -385,6 +435,17 @@
             console.log(document.getElementById("phasealabel").value);
             phaseblabelvalue = document.getElementById("phaseblabel").value;
             console.log(document.getElementById("phaseblabel").value);
+            
+            // Graph Area Dimensions
+            graph_height = document.getElementById("chartareaheight").value;
+            console.log(document.getElementById("chartareaheight").value);
+            graph_observations = document.getElementById("observationcount").value;
+            console.log(document.getElementById("observationcount").value);
+            graph_width = 0.14*graph_height*graph_observations;
+            document.getElementById("chartareawidth").value = graph_width;
+            console.log(graph_width);
+            document.getElementById("chart_div").style.width = (graph_width+"px");
+            document.getElementById("chart_div").style.height = (graph_height+"px");
         }
         
         function SaveUsername(){
